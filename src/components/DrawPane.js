@@ -1,12 +1,9 @@
-import "./App.css";
 import { Circle, Layer, Line, Stage, Group, Shape } from "react-konva";
-import BezierCurve from "./components/BezierCurve";
-import React, { useEffect, useState } from "react";
-import LineElement from "./components/LineElement";
-import CircleElement from "./components/CircleElement";
-import Axis from "./components/Axis";
 
-function App() {
+import React, { useEffect, useState } from "react";
+import LineElement from "./LineElement";
+import CircleElement from "./CircleElement";
+const DrawingPane = () => {
   const [elementType, setElementType] = useState("Line");
   const [tool, setTool] = useState("pen");
   const [circleArray, setCircleArray] = useState([]);
@@ -150,87 +147,59 @@ function App() {
   };
 
   return (
-    <div tabIndex={1} onKeyUp={handleKeyUp}>
-      <Stage
-        width={window.innerWidth}
-        height={window.innerHeight}
-        onClick={tool == "pen" && handleClick}
-        onMouseMove={tool == "pen" && handleMouseMove}
-        style={tool == "pen" ? { cursor: "crosshair" } : { cursor: "default" }}
-      >
-        {/* {elementType == "Line" && (
-          <Layer>
-            <Line
-              points={[100, 500, 500, 100]}
-              stroke="grey"
-              strokeWidth={2}
-              draggable
-              onDragStart={convertToCurve}
-            ></Line>
-          </Layer>
-        )}
-        {elementType == "Curve" && <BezierCurve />} */}
-        <Layer>
-          {shapeArray.map((i, shape) => {
-            return (
-              <Group draggable={tool == "select" ? true : false}>
-                {
-                  <Shape
-                    sceneFunc={(context, shape) => {
-                      context.beginPath();
-                      context.moveTo(i.path.M.x, i.path.M.y);
-                      i.path.L.map((data) => {
-                        context.lineTo(data.x, data.y);
-                      });
+    <Layer>
+      {shapeArray.map((i, shape) => {
+        return (
+          <Group draggable={tool == "select" ? true : false}>
+            {
+              <Shape
+                sceneFunc={(context, shape) => {
+                  context.beginPath();
+                  context.moveTo(i.path.M.x, i.path.M.y);
+                  i.path.L.map((data) => {
+                    context.lineTo(data.x, data.y);
+                  });
 
-                      context.fillStrokeShape(shape);
-                    }}
-                    fillEnabled={i.path.closedPath}
-                    fill="whitesmoke"
-                  />
-                }
-                {i.line.map((j) => {
-                  return <LineElement points={j.points} stroke="black" />;
-                })}
-                {i.circle.map((j, index) => {
-                  return (
-                    <CircleElement
-                      x={j.x}
-                      y={j.y}
-                      shape={shape}
-                      index={index}
-                      fill="black"
-                    />
-                  );
-                })}
-              </Group>
-            );
-          })}
-          <Group>
-            {lineArray.map((i) => {
-              return <LineElement points={i.points} stroke="grey" />;
+                  context.fillStrokeShape(shape);
+                }}
+                fillEnabled={i.path.closedPath}
+                fill="whitesmoke"
+              />
+            }
+            {i.line.map((j) => {
+              return <LineElement points={j.points} stroke="black" />;
             })}
-            {circleArray.map((i, index) => {
+            {i.circle.map((j, index) => {
               return (
                 <CircleElement
-                  x={i.x}
-                  y={i.y}
-                  shape={shapeIndex}
+                  x={j.x}
+                  y={j.y}
+                  shape={shape}
                   index={index}
-                  fill={index == circleArray.length - 1 ? "blue" : "grey"}
+                  fill="black"
                 />
               );
             })}
           </Group>
-        </Layer>
-        <Axis
-          pixel={100}
-          width={window.innerWidth}
-          height={window.innerHeight}
-        />
-      </Stage>
-    </div>
+        );
+      })}
+      <Group>
+        {lineArray.map((i) => {
+          return <LineElement points={i.points} stroke="grey" />;
+        })}
+        {circleArray.map((i, index) => {
+          return (
+            <CircleElement
+              x={i.x}
+              y={i.y}
+              shape={shapeIndex}
+              index={index}
+              fill={index == circleArray.length - 1 ? "blue" : "grey"}
+            />
+          );
+        })}
+      </Group>
+    </Layer>
   );
-}
-
-export default App;
+};
+export default DrawingPane;
