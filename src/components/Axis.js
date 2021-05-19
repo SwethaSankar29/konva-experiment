@@ -1,16 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Group, Layer, Line, Rect, Text } from "react-konva";
 
 const Axis = ({ pixel, width, height }) => {
   const xAxis = (i, yPos) => {
     return (
-      <Group>
+      <Group name={"x-axis-" + i * pixel}>
         <Line
+          className={"x-axis-line-" + i * pixel}
           points={[i * pixel, 20, i * pixel, yPos]}
           stroke="grey"
           strokeWidth={1}
         />
-        <Text x={i * pixel} y={2} text={i * pixel} fontSize={10}></Text>
+        <Text
+          className={"x-axis-text-" + i * pixel}
+          x={i * pixel}
+          y={2}
+          text={i * pixel}
+          fontSize={10}
+        ></Text>
       </Group>
     );
   };
@@ -18,18 +25,20 @@ const Axis = ({ pixel, width, height }) => {
     return (
       <Group>
         <Line
+          className={"y-axis-line-" + i * pixel}
           points={[20, i * pixel, xPos, i * pixel]}
           stroke="grey"
           strokeWidth={1}
         />
         <Text
+          className={"y-axis-text-" + i * pixel}
           key={i * pixel}
           y={i * pixel + 3}
           x={0}
           text={i * pixel}
           fontSize={10}
           rotation={-90}
-          fillPatternRotation
+          fillAfterStrokeEnabled={false}
         ></Text>
       </Group>
     );

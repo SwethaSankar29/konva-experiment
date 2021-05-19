@@ -1,12 +1,29 @@
 import "./App.css";
-import { Circle, Layer, Line, Stage, Group, Shape } from "react-konva";
+import {
+  Circle,
+  Layer,
+  Line,
+  Stage,
+  Group,
+  Shape,
+  TextPath,
+  Text,
+} from "react-konva";
 import BezierCurve from "./components/BezierCurve";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+
 import LineElement from "./components/LineElement";
 import CircleElement from "./components/CircleElement";
 import Axis from "./components/Axis";
+import AxisNeedle from "./components/AxisNeedle";
+import "./css/interact.css";
+import { updateNeedlePoint } from "./features/actives";
+import { useDispatch } from "react-redux";
+import FloatingInput from "./components/FloatingInput";
 
 function App() {
+  const pixel = 100;
+  const dispatch = useDispatch();
   const [elementType, setElementType] = useState("Line");
   const [tool, setTool] = useState("pen");
   const [circleArray, setCircleArray] = useState([]);
@@ -14,6 +31,10 @@ function App() {
   const [snapped, setSnapped] = useState(false);
   const [shapeArray, setShapeArray] = useState([]);
   const [shapeIndex, setShapeIndex] = useState(0);
+  const [needlePoint, setNeedlePoint] = useState([0, 0]);
+  const [movePoint, setMovePoint] = useState([0, 0]);
+  const [lineLength, setLineLength] = useState(0);
+
   const convertToCurve = () => {
     setElementType("Curve");
   };
@@ -21,6 +42,7 @@ function App() {
   const handleMouseMove = (e) => {
     if (!snapped) {
       let pos = e.target.getStage().getPointerPosition();
+
       let line = [...lineArray];
       if (lineArray.length > 0) {
         line[line.length - 1].points = [
@@ -29,18 +51,29 @@ function App() {
           pos.x,
           pos.y,
         ];
+
+        let length = getLineLength(
+          line[line.length - 1].points[0],
+          line[line.length - 1].points[1],
+          pos.x,
+          pos.y
+        );
+
+        setMovePoint([pos.x, pos.y]);
+        setLineLength(length);
       }
       setLineArray(line);
     }
   };
   const handleClick = (e) => {
     let pos = e.target.getStage().getPointerPosition();
-
+    setNeedlePoint([pos.x, pos.y]);
     if (e?.target?.attrs?.className != "circle") {
       createCircleAndLine(pos);
     } else {
       snapping(pos, e);
     }
+    dispatch(updateNeedlePoint([pos.x, pos.y]));
   };
 
   function setShape(line, circle) {
@@ -67,6 +100,8 @@ function App() {
     setLineArray([]);
     setCircleArray([]);
     setShapeIndex(shapeIndex + 1);
+    setNeedlePoint([0, 0]);
+    setMovePoint([0, 0]);
   }
   function createCircleAndLine(pos) {
     let circle = { x: pos.x, y: pos.y };
@@ -115,15 +150,19 @@ function App() {
       createCircleAndLine(pos);
     }
   }
+  function getLineLength(x1, y1, x2, y2) {
+    return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2)).toFixed(2);
+  }
   const handleKeyUp = (e) => {
     if (e.key == "Escape") {
       let line = [...lineArray];
       if (lineArray.length > 0) {
         line.splice(line.length - 1, 1);
+
+        setLineArray(() => line);
+        setShape(line, circleArray);
+        setSnapped(true);
       }
-      setLineArray(() => line);
-      setShape(line, circleArray);
-      setSnapped(true);
     }
     if (e.key == "p" || e.key == "P") {
       if (lineArray.length > 0) {
@@ -149,9 +188,11 @@ function App() {
     }
   };
 
+  const stageRef = React.createRef();
   return (
     <div tabIndex={1} onKeyUp={handleKeyUp}>
       <Stage
+        ref={stageRef}
         width={window.innerWidth}
         height={window.innerHeight}
         onClick={tool == "pen" && handleClick}
@@ -186,7 +227,7 @@ function App() {
                       context.fillStrokeShape(shape);
                     }}
                     fillEnabled={i.path.closedPath}
-                    fill="whitesmoke"
+                    fill="lightgrey"
                   />
                 }
                 {i.line.map((j) => {
@@ -228,7 +269,20 @@ function App() {
           width={window.innerWidth}
           height={window.innerHeight}
         />
+        {needlePoint[0] != 0 && needlePoint[1] != 0 && (
+          <AxisNeedle
+            xPosition={needlePoint[0]}
+            yPosition={needlePoint[1]}
+          ></AxisNeedle>
+        )}
       </Stage>
+      {movePoint[0] != 0 && movePoint[1] != 0 && (
+        <FloatingInput
+          xPos={Number(movePoint[0] + 10)}
+          yPos={Number(movePoint[1] + 10)}
+          value={lineLength}
+        ></FloatingInput>
+      )}
     </div>
   );
 }
