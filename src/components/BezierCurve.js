@@ -62,12 +62,12 @@ const BezierCurve = () => {
     setBezierControlCircle(circlePoints);
   }
   // get curve control points at ratio a and b a:b
-  function getControlPointsAtRatio(a, b, x1, y1, x2, y2) {
-    let x = (b * x1 + a * x2) / (a + b);
-    let y = (b * y1 + a * y2) / (a + b);
+  // function getControlPointsAtRatio(a, b, x1, y1, x2, y2) {
+  //   let x = (b * x1 + a * x2) / (a + b);
+  //   let y = (b * y1 + a * y2) / (a + b);
 
-    return { controlPoint: [x, y] };
-  }
+  //   return { controlPoint: [x, y] };
+  // }
   // get curve control points at interval 0 to 1
   function getControlPointsAtIntervals(k, x1, y1, x2, y2) {
     let x = (x1 + k * x2) / (1 + k);
@@ -75,19 +75,20 @@ const BezierCurve = () => {
 
     return { controlPoint: [x, y] };
   }
-  function generateCurveControlPoints(x1, y1, x2, y2) {
-    let controlPoint1X = Math.round(Math.abs((x1 + x2) / 2));
-    let controlPoint1Y = Math.round(Math.abs((y1 + y2) / 2));
-    let controlPoint2X = Math.round(Math.abs((controlPoint1X + x2) / 2));
-    let controlPoint2Y = Math.round(Math.abs((controlPoint1Y + y2) / 2));
-    controlPoint1X = Math.round(Math.abs((x1 + controlPoint1X) / 2));
-    controlPoint1Y = Math.round(Math.abs((y1 + controlPoint1Y) / 2));
 
-    return {
-      controlPoint1: [controlPoint1X, controlPoint1Y],
-      controlPoint2: [controlPoint2X, controlPoint2Y],
-    };
-  }
+  // function generateCurveControlPoints(x1, y1, x2, y2) {
+  //     let controlPoint1X = Math.round(Math.abs((x1 + x2) / 2));
+  //     let controlPoint1Y = Math.round(Math.abs((y1 + y2) / 2));
+  //     let controlPoint2X = Math.round(Math.abs((controlPoint1X + x2) / 2));
+  //     let controlPoint2Y = Math.round(Math.abs((controlPoint1Y + y2) / 2));
+  //     controlPoint1X = Math.round(Math.abs((x1 + controlPoint1X) / 2));
+  //     controlPoint1Y = Math.round(Math.abs((y1 + controlPoint1Y) / 2));
+
+  //     return {
+  //         controlPoint1: [controlPoint1X, controlPoint1Y],
+  //         controlPoint2: [controlPoint2X, controlPoint2Y],
+  //     };
+  // }
   const dragGroup = (e) => {
     e.cancelBubble = true;
   };
@@ -116,7 +117,7 @@ const BezierCurve = () => {
           fill="transparent"
           stroke="grey"
           strokeWidth={2}
-        />
+        />{" "}
         {bezierControlCircle.map((i) => {
           return (
             <Circle
@@ -129,7 +130,7 @@ const BezierCurve = () => {
               onDragEnd={dragBezierControlPoint}
             />
           );
-        })}
+        })}{" "}
         {bezierControlLine.map((i) => {
           return (
             <Line
@@ -141,8 +142,8 @@ const BezierCurve = () => {
               dash={[5, 5]}
             />
           );
-        })}
-      </Group>
+        })}{" "}
+      </Group>{" "}
     </Layer>
   );
 };

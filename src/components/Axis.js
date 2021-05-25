@@ -1,10 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { Group, Layer, Line, Rect, Text } from "react-konva";
+import { getNeedlePoint } from "../features/actives";
+import { useSelector } from "react-redux";
 
 const Axis = ({ pixel, width, height }) => {
+  let xAxisRef = [];
   const xAxis = (i, yPos) => {
+    const newRef = React.createRef();
+    xAxisRef.push(newRef);
     return (
-      <Group name={"x-axis-" + i * pixel}>
+      <Group name={"x-axis-" + i * pixel} ref={newRef}>
         <Line
           className={"x-axis-line-" + i * pixel}
           points={[i * pixel, 20, i * pixel, yPos]}
@@ -23,7 +28,7 @@ const Axis = ({ pixel, width, height }) => {
   };
   const yAxis = (i, xPos) => {
     return (
-      <Group>
+      <Group name={"y-axis-" + i * pixel}>
         <Line
           className={"y-axis-line-" + i * pixel}
           points={[20, i * pixel, xPos, i * pixel]}
@@ -45,7 +50,7 @@ const Axis = ({ pixel, width, height }) => {
   };
 
   return (
-    <Layer>
+    <Group>
       {
         <Rect
           x={-10000}
@@ -76,14 +81,14 @@ const Axis = ({ pixel, width, height }) => {
       }
 
       {Array.from({ length: width }, (item, i) => {
-        if (i % 100 == 0) {
+        if (i % 100 === 0) {
           return xAxis(i, 16);
         } else {
           return xAxis(i, 10);
         }
       })}
       {Array.from({ length: height }, (item, i) => {
-        if (i % 100 == 0) {
+        if (i % 100 === 0) {
           return yAxis(i, 16);
         } else {
           return yAxis(i, 10);
@@ -98,7 +103,7 @@ const Axis = ({ pixel, width, height }) => {
         fill="white"
         stroke="white"
       ></Rect>
-    </Layer>
+    </Group>
   );
 };
 export default React.memo(Axis);
