@@ -12,7 +12,6 @@ const AxisNeedle = ({ xPosition, yPosition, layerRef }) => {
     layerRef.current?.findOne(".x-axis-" + previousXPosition).show();
     layerRef.current.getLayer().batchDraw();
     if (previousXPosition != nearXPosition) {
-      console.log(previousXPosition);
       setPreviousXPosition(nearXPosition);
     }
     if (xPosition >= nearXPosition - 20 && xPosition <= nearXPosition + 20) {
@@ -23,7 +22,6 @@ const AxisNeedle = ({ xPosition, yPosition, layerRef }) => {
     layerRef.current?.findOne(".y-axis-" + previousYPosition).show();
     layerRef.current.getLayer().batchDraw();
     if (previousYPosition != nearYPosition) {
-      console.log(previousYPosition);
       setPreviousYPosition(nearYPosition);
     }
     if (yPosition >= nearYPosition - 20 && yPosition <= nearYPosition + 20) {

@@ -8,8 +8,12 @@ import CircleElement from "./components/CircleElement";
 import Axis from "./components/Axis";
 import AxisNeedle from "./components/AxisNeedle";
 import "./css/interact.css";
-import { updateNeedlePosition } from "./features/actives";
-import { useDispatch } from "react-redux";
+import {
+  getInputFocus,
+  updateInputFocus,
+  updateNeedlePosition,
+} from "./features/actives";
+import { useDispatch, useSelector } from "react-redux";
 import FloatingInput from "./components/FloatingInput";
 
 function App() {
@@ -25,6 +29,8 @@ function App() {
   const [needlePoint, setNeedlePoint] = useState([0, 0]);
   const [movePoint, setMovePoint] = useState([0, 0]);
   const [lineLength, setLineLength] = useState(0);
+
+  const inputFocused = useSelector(getInputFocus);
   const layerRef = React.useRef();
   // const convertToCurve = () => {
   //   setElementType("Curve");
@@ -145,11 +151,48 @@ function App() {
   }
 
   function getLineLength(x1, y1, x2, y2) {
-    return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2)).toFixed(2);
+    return (
+      Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2)) / 10
+    ).toFixed(2);
   }
+  function getEndPointByGivenLength(ax, ay, bx, by, newLength, elementLength) {
+    let newCoordinate = {};
+    let extraLength = parseFloat(newLength) - elementLength;
+    newCoordinate.x = bx + ((bx - ax) / elementLength) * extraLength;
+    newCoordinate.y = by + ((by - ay) / elementLength) * extraLength;
+
+    return newCoordinate;
+  }
+  const setLineByLength = (value) => {
+    let line = [...lineArray];
+
+    let newCoordinates = getEndPointByGivenLength(
+      line[lineArray.length - 1].points[0],
+      line[lineArray.length - 1].points[1],
+      line[lineArray.length - 1].points[2],
+      line[lineArray.length - 1].points[3],
+      value,
+      lineLength
+    );
+    line[line.length - 1].points = [
+      line[line.length - 1].points[0],
+      line[line.length - 1].points[1],
+      newCoordinates.x,
+      newCoordinates.y,
+    ];
+    setLineArray(line);
+    setLineLength(value);
+    createCircleAndLine(newCoordinates);
+  };
   const handleKeyUp = (e) => {
     if (!isNaN(parseFloat(e.key)) || e.keyCode === "39" || e.keyCode === "37") {
+      // document.getElementsByClassName("floating-input")[0]?.focus();
+
+      console.log("input-focused");
+
+      dispatch(updateInputFocus(true));
     } else {
+      console.log("app-focused");
       if (e.key === "Escape") {
         let line = [...lineArray];
         if (lineArray.length > 0) {
@@ -185,15 +228,24 @@ function App() {
     }
   };
 
+  const handleKeyUpInput = (e) => {
+    if (e.key === "Enter") {
+      dispatch(updateInputFocus(false));
+    }
+  };
   const stageRef = React.createRef();
   return (
-    <div className="app-main" tabIndex={1} onKeyUp={handleKeyUp}>
+    <div
+      className="app-main"
+      tabIndex={1}
+      onKeyUp={inputFocused ? handleKeyUpInput : handleKeyUp}
+    >
       <Stage
         ref={stageRef}
         width={window.innerWidth}
         height={window.innerHeight}
-        onClick={tool === "pen" && handleClick}
-        onMouseMove={tool === "pen" && handleMouseMove}
+        onClick={tool === "pen" && !inputFocused && handleClick}
+        onMouseMove={tool === "pen" && !inputFocused && handleMouseMove}
         style={tool === "pen" ? { cursor: "crosshair" } : { cursor: "default" }}
       >
         {/* {elementType == "Line" && (
@@ -280,6 +332,7 @@ function App() {
           xPos={Number(movePoint[0] + 10)}
           yPos={Number(movePoint[1] + 10)}
           value={lineLength}
+          setLineByLength={setLineByLength}
         ></FloatingInput>
       )}
     </div>
